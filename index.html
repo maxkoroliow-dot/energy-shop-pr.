@@ -1,0 +1,946 @@
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@700;900&family=Rajdhani:wght@400;600;700&display=swap" rel="stylesheet">
+<style>
+*{margin:0;padding:0;box-sizing:border-box;}
+body{background:#000;font-family:'Rajdhani',sans-serif;color:#fff;overflow-x:hidden;min-height:100vh;}
+canvas#bg{position:fixed;top:0;left:0;width:100%;height:100%;z-index:0;pointer-events:none;}
+.page{position:relative;z-index:1;}
+nav{display:flex;align-items:center;justify-content:space-between;padding:14px 30px;background:rgba(0,0,0,0.8);border-bottom:1px solid rgba(0,255,80,0.2);position:sticky;top:0;z-index:100;backdrop-filter:blur(14px);flex-wrap:wrap;gap:10px;}
+.logo{font-family:'Orbitron',sans-serif;font-size:20px;font-weight:900;color:#00ff50;text-shadow:0 0 18px #00ff50,0 0 40px #00ff5066;letter-spacing:2px;}
+.nav-links{display:flex;gap:18px;list-style:none;flex-wrap:wrap;}
+.nav-links a{color:#aaa;text-decoration:none;font-size:14px;font-weight:600;letter-spacing:1px;text-transform:uppercase;transition:color .2s;cursor:pointer;}
+.nav-links a:hover{color:#00ff50;}
+.nav-right{display:flex;gap:10px;align-items:center;}
+.cart-btn{background:#00ff50;color:#000;border:none;padding:9px 18px;border-radius:6px;font-family:'Orbitron',sans-serif;font-size:12px;font-weight:700;cursor:pointer;transition:box-shadow .2s,transform .15s;display:flex;align-items:center;gap:7px;}
+.cart-btn:hover{box-shadow:0 0 22px #00ff5088;transform:scale(1.05);}
+.cart-count{background:#000;color:#00ff50;border-radius:50%;width:20px;height:20px;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:900;}
+.admin-btn{background:transparent;color:#ff6600;border:1px solid #ff660055;padding:9px 14px;border-radius:6px;font-family:'Orbitron',sans-serif;font-size:11px;font-weight:700;cursor:pointer;transition:all .2s;letter-spacing:1px;}
+.admin-btn:hover{border-color:#ff6600;box-shadow:0 0 14px #ff660055;}
+.hero{text-align:center;padding:60px 20px 30px;}
+.hero-tag{display:inline-block;font-size:12px;font-weight:700;letter-spacing:4px;text-transform:uppercase;color:#00ff50;border:1px solid #00ff5055;padding:5px 18px;border-radius:30px;margin-bottom:20px;animation:pulse-border 2s infinite;}
+@keyframes pulse-border{0%,100%{border-color:#00ff5055;box-shadow:none}50%{border-color:#00ff50;box-shadow:0 0 12px #00ff5066}}
+.hero h1{font-family:'Orbitron',sans-serif;font-size:clamp(28px,5vw,60px);font-weight:900;line-height:1.05;background:linear-gradient(90deg,#00ff50,#00e5ff,#00ff50);background-size:200%;-webkit-background-clip:text;-webkit-text-fill-color:transparent;animation:shimmer 3s linear infinite;margin-bottom:12px;}
+@keyframes shimmer{0%{background-position:0% 50%}100%{background-position:200% 50%}}
+.hero p{font-size:17px;color:#888;max-width:480px;margin:0 auto 16px;letter-spacing:1px;}
+.phone-strip{display:flex;justify-content:center;gap:16px;flex-wrap:wrap;margin:0 0 30px;padding:0 20px;}
+.phone-pill{display:flex;align-items:center;gap:8px;background:rgba(0,255,80,0.07);border:1px solid rgba(0,255,80,0.3);padding:9px 20px;border-radius:30px;font-family:'Orbitron',sans-serif;font-size:12px;color:#00ff50;text-decoration:none;transition:all .2s;letter-spacing:1px;}
+.phone-pill:hover{background:rgba(0,255,80,0.15);box-shadow:0 0 16px #00ff5044;}
+.filter-row{display:flex;gap:10px;justify-content:center;flex-wrap:wrap;margin-bottom:36px;}
+.filter-btn{background:transparent;color:#aaa;border:1px solid #333;padding:7px 20px;border-radius:30px;font-family:'Rajdhani',sans-serif;font-size:14px;font-weight:600;cursor:pointer;transition:all .2s;letter-spacing:1px;text-transform:uppercase;}
+.filter-btn.active,.filter-btn:hover{border-color:#00ff50;color:#00ff50;box-shadow:0 0 14px #00ff5044;}
+.section-label{text-align:center;font-family:'Orbitron',sans-serif;font-size:11px;letter-spacing:4px;color:#00ff50;text-transform:uppercase;margin-bottom:18px;padding-top:10px;}
+.section-label span{color:#444;}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:16px;max-width:1200px;margin:0 auto;padding:0 20px 40px;}
+.card{background:rgba(10,10,10,0.9);border:1px solid #1a1a1a;border-radius:16px;padding:20px 16px 16px;text-align:center;cursor:default;transition:transform .25s,border-color .25s,box-shadow .25s;position:relative;overflow:hidden;}
+.card::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,transparent,#00ff50,transparent);opacity:0;transition:opacity .3s;}
+.card:hover{transform:translateY(-7px);border-color:#00ff5066;box-shadow:0 8px 40px #00ff5022;}
+.card:hover::before{opacity:1;}
+.card-vol{font-size:10px;font-weight:700;letter-spacing:3px;text-transform:uppercase;color:#00ff50;margin-bottom:6px;}
+.card-emoji{font-size:48px;margin:6px 0;display:block;filter:drop-shadow(0 0 12px rgba(0,255,80,.35));}
+.card-name{font-family:'Orbitron',sans-serif;font-size:11px;font-weight:700;letter-spacing:.5px;color:#eee;margin:8px 0 4px;line-height:1.35;min-height:30px;}
+.card-price{font-size:20px;font-weight:700;color:#00ff50;font-family:'Orbitron',sans-serif;margin:8px 0 14px;}
+.card-price span{font-size:11px;color:#555;font-family:'Rajdhani',sans-serif;}
+.add-btn{width:100%;background:#00ff50;color:#000;border:none;padding:10px;border-radius:8px;font-family:'Orbitron',sans-serif;font-size:11px;font-weight:700;cursor:pointer;transition:box-shadow .2s,transform .15s;letter-spacing:1px;}
+.add-btn:hover{box-shadow:0 0 18px #00ff5099;transform:scale(1.03);}
+.add-btn:active{transform:scale(.97);}
+.badge-added{position:absolute;top:10px;right:10px;background:#00ff50;color:#000;border-radius:50%;width:22px;height:22px;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:900;opacity:0;transition:opacity .3s;pointer-events:none;}
+.badge-added.show{opacity:1;}
+.contacts-section{max-width:800px;margin:20px auto 60px;padding:0 24px;}
+.contacts-title{font-family:'Orbitron',sans-serif;font-size:14px;font-weight:900;color:#00ff50;letter-spacing:3px;margin-bottom:16px;text-align:center;text-transform:uppercase;}
+.contacts-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(210px,1fr));gap:12px;}
+.contact-card{background:rgba(10,10,10,0.9);border:1px solid #1a1a1a;border-radius:12px;padding:18px;text-align:center;transition:border-color .2s,box-shadow .2s;text-decoration:none;display:block;}
+.contact-card:hover{border-color:#00ff5055;box-shadow:0 4px 20px #00ff5022;}
+.contact-card.adm:hover{border-color:#ff660055;box-shadow:0 4px 20px #ff660022;}
+.c-role{font-size:10px;letter-spacing:3px;text-transform:uppercase;color:#444;margin-bottom:8px;}
+.c-num{font-family:'Orbitron',sans-serif;font-size:13px;color:#00ff50;font-weight:700;}
+.contact-card.adm .c-num{color:#ff6600;}
+.c-tap{font-size:11px;color:#333;margin-top:6px;}
+footer{text-align:center;padding:28px;border-top:1px solid #111;color:#333;font-size:12px;letter-spacing:2px;text-transform:uppercase;}
+footer span{color:#00ff50;}
+
+/* ===== SAFE MODE BANNER ===== */
+.safe-mode-bar{
+  position:fixed;bottom:0;left:0;right:0;z-index:500;
+  background:rgba(0,0,0,0.97);
+  border-top:1px solid #333;
+  padding:14px 20px;
+  display:flex;align-items:center;justify-content:center;gap:16px;flex-wrap:wrap;
+  backdrop-filter:blur(16px);
+  transition:border-color .4s;
+}
+.safe-mode-bar.safe-on{border-top-color:#ffcc00;}
+.safe-mode-label{font-family:'Orbitron',sans-serif;font-size:11px;letter-spacing:2px;color:#555;text-transform:uppercase;}
+.safe-mode-bar.safe-on .safe-mode-label{color:#ffcc00;}
+.safe-toggle{
+  position:relative;width:52px;height:28px;cursor:pointer;
+}
+.safe-toggle input{opacity:0;width:0;height:0;position:absolute;}
+.safe-slider{
+  position:absolute;inset:0;border-radius:28px;
+  background:#1a1a1a;border:1px solid #333;
+  transition:background .3s,border-color .3s;
+}
+.safe-slider::before{
+  content:'';position:absolute;
+  width:20px;height:20px;border-radius:50%;
+  background:#555;top:3px;left:3px;
+  transition:transform .3s,background .3s;
+}
+.safe-toggle input:checked + .safe-slider{background:#332200;border-color:#ffcc00;}
+.safe-toggle input:checked + .safe-slider::before{transform:translateX(24px);background:#ffcc00;}
+
+.safe-mode-text{font-size:12px;color:#555;letter-spacing:1px;}
+.safe-mode-bar.safe-on .safe-mode-text{color:#ffcc00;}
+
+/* Safe mode — hide energy section */
+body.safe-mode #grid250,
+body.safe-mode #grid500,
+body.safe-mode #sectionLabel250,
+body.safe-mode #sectionLabel500,
+body.safe-mode .filter-btn[data-tag="nonstop"],
+body.safe-mode .filter-btn[data-tag="monster"],
+body.safe-mode .filter-btn[data-tag="pitbull"],
+body.safe-mode .filter-btn[data-energy]{display:none!important;}
+
+/* Safe mode notice banner */
+.safe-notice{
+  display:none;
+  max-width:700px;margin:0 auto 30px;padding:0 20px;
+}
+body.safe-mode .safe-notice{display:block;}
+.safe-notice-inner{
+  background:rgba(255,204,0,0.06);
+  border:1px solid #ffcc0044;
+  border-radius:14px;
+  padding:20px 24px;
+  text-align:center;
+}
+.safe-notice-inner big{font-size:36px;display:block;margin-bottom:10px;}
+.safe-notice-inner p{font-size:14px;color:#ffcc0099;letter-spacing:1px;line-height:1.6;}
+.safe-notice-inner strong{color:#ffcc00;}
+
+/* Safe mode: hide energy filter buttons */
+body.safe-mode .energy-filter-btn{display:none!important;}
+
+/* padding so content doesn't hide behind fixed bar */
+.page{padding-bottom:70px;}
+
+/* ===== MODALS ===== */
+.modal-overlay{position:fixed;inset:0;z-index:200;background:rgba(0,0,0,0.88);display:flex;align-items:flex-end;justify-content:center;opacity:0;pointer-events:none;transition:opacity .3s;}
+.modal-overlay.open{opacity:1;pointer-events:all;}
+.cart-panel{background:#0a0a0a;border:1px solid #222;border-radius:20px 20px 0 0;padding:28px;width:100%;max-width:540px;max-height:85vh;overflow-y:auto;transform:translateY(100%);transition:transform .35s cubic-bezier(.4,0,.2,1);}
+.modal-overlay.open .cart-panel{transform:translateY(0);}
+.cart-title{font-family:'Orbitron',sans-serif;font-size:18px;font-weight:900;color:#00ff50;margin-bottom:20px;display:flex;justify-content:space-between;align-items:center;}
+.close-btn{background:#1a1a1a;border:none;color:#aaa;width:30px;height:30px;border-radius:50%;cursor:pointer;font-size:16px;display:flex;align-items:center;justify-content:center;}
+.cart-item{display:flex;align-items:center;gap:12px;padding:10px 0;border-bottom:1px solid #1a1a1a;}
+.ci-emoji{font-size:30px;}
+.ci-name{font-size:13px;font-weight:600;color:#eee;flex:1;line-height:1.3;}
+.ci-qty{display:flex;align-items:center;gap:7px;}
+.qty-btn{background:#1a1a1a;border:1px solid #333;color:#fff;width:24px;height:24px;border-radius:5px;cursor:pointer;font-size:15px;display:flex;align-items:center;justify-content:center;transition:border-color .2s;}
+.qty-btn:hover{border-color:#00ff50;color:#00ff50;}
+.ci-price{font-family:'Orbitron',sans-serif;font-size:13px;font-weight:700;color:#00ff50;min-width:65px;text-align:right;}
+.cart-total{margin-top:20px;padding-top:14px;border-top:1px solid #333;display:flex;justify-content:space-between;align-items:center;font-family:'Orbitron',sans-serif;font-size:18px;font-weight:900;}
+.checkout-btn{width:100%;background:#00ff50;color:#000;border:none;padding:14px;border-radius:10px;font-family:'Orbitron',sans-serif;font-size:13px;font-weight:900;cursor:pointer;margin-top:16px;letter-spacing:1px;transition:box-shadow .2s;}
+.checkout-btn:hover{box-shadow:0 0 28px #00ff5088;}
+.checkout-btn:disabled{background:#333;color:#666;cursor:not-allowed;box-shadow:none;}
+.empty-cart{text-align:center;color:#555;padding:40px 0;font-size:16px;}
+.empty-cart big{font-size:46px;display:block;margin-bottom:12px;}
+.name-input{width:100%;background:#111;border:1px solid #333;color:#fff;padding:12px 16px;border-radius:8px;font-family:'Rajdhani',sans-serif;font-size:15px;margin-bottom:12px;outline:none;transition:border-color .2s;}
+.name-input:focus{border-color:#00ff50;}
+.name-input::placeholder{color:#555;}
+
+.adm-overlay{position:fixed;inset:0;z-index:300;background:rgba(0,0,0,0.93);display:flex;align-items:center;justify-content:center;opacity:0;pointer-events:none;transition:opacity .3s;padding:20px;}
+.adm-overlay.open{opacity:1;pointer-events:all;}
+.adm-panel{background:#0a0a0a;border:1px solid #ff660044;border-radius:16px;padding:28px;width:100%;max-width:520px;max-height:90vh;overflow-y:auto;}
+.adm-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:22px;}
+.adm-title{font-family:'Orbitron',sans-serif;font-size:17px;font-weight:900;color:#ff6600;}
+.adm-input{width:100%;background:#111;border:1px solid #333;color:#fff;padding:12px 16px;border-radius:8px;font-family:'Rajdhani',sans-serif;font-size:15px;margin-bottom:12px;outline:none;transition:border-color .2s;}
+.adm-input:focus{border-color:#ff6600;}
+.adm-login-btn{width:100%;background:#ff6600;color:#000;border:none;padding:12px;border-radius:8px;font-family:'Orbitron',sans-serif;font-size:13px;font-weight:900;cursor:pointer;letter-spacing:1px;transition:box-shadow .2s;}
+.adm-login-btn:hover{box-shadow:0 0 20px #ff660066;}
+.login-err{color:#ff4444;font-size:13px;margin-top:8px;display:none;}
+.adm-dash{display:none;}
+.adm-dash.show{display:block;}
+.adm-section{margin-bottom:22px;}
+.adm-section h3{font-family:'Orbitron',sans-serif;font-size:12px;color:#ff6600;letter-spacing:2px;margin-bottom:12px;text-transform:uppercase;}
+.stat-row{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:14px;}
+.stat-card{background:#111;border:1px solid #222;border-radius:10px;padding:14px;text-align:center;}
+.stat-num{font-family:'Orbitron',sans-serif;font-size:22px;font-weight:900;color:#00ff50;}
+.stat-label{font-size:11px;color:#444;letter-spacing:1px;margin-top:4px;text-transform:uppercase;}
+.orders-list{display:flex;flex-direction:column;gap:10px;max-height:400px;overflow-y:auto;}
+.order-card{background:#111;border:1px solid #222;border-radius:10px;padding:14px;position:relative;}
+.order-card.new-order{border-color:#00ff5066;animation:newOrderPulse .8s ease;}
+@keyframes newOrderPulse{0%{box-shadow:0 0 0 0 #00ff5066}50%{box-shadow:0 0 20px 6px #00ff5033}100%{box-shadow:none}}
+.order-header{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:8px;}
+.order-num{font-family:'Orbitron',sans-serif;font-size:12px;color:#ff6600;font-weight:700;}
+.order-time{font-size:11px;color:#444;}
+.order-customer{font-size:14px;font-weight:700;color:#eee;margin-bottom:6px;}
+.order-items{font-size:12px;color:#666;margin-bottom:8px;line-height:1.5;}
+.order-total{font-family:'Orbitron',sans-serif;font-size:16px;font-weight:900;color:#00ff50;}
+.order-status{display:inline-block;font-size:10px;font-weight:700;letter-spacing:2px;padding:3px 10px;border-radius:20px;margin-top:6px;background:rgba(0,255,80,0.1);color:#00ff50;border:1px solid rgba(0,255,80,0.3);}
+.no-orders{text-align:center;color:#333;padding:30px 0;font-size:15px;}
+.refresh-btn{width:100%;background:transparent;border:1px solid #00ff5033;color:#00ff50;padding:10px;border-radius:8px;font-family:'Orbitron',sans-serif;font-size:11px;font-weight:700;cursor:pointer;letter-spacing:1px;margin-bottom:14px;transition:all .2s;}
+.refresh-btn:hover{border-color:#00ff50;box-shadow:0 0 14px #00ff5033;}
+.live-dot{display:inline-block;width:8px;height:8px;background:#00ff50;border-radius:50%;margin-right:6px;animation:livePulse 1.4s infinite;}
+@keyframes livePulse{0%,100%{opacity:1;transform:scale(1)}50%{opacity:.4;transform:scale(.7)}}
+.adm-contacts{background:#111;border:1px solid #222;border-radius:10px;padding:14px;}
+.ct-row{display:flex;align-items:center;gap:10px;padding:8px 0;border-bottom:1px solid #1a1a1a;}
+.ct-row:last-child{border-bottom:none;}
+.ct-role{font-size:10px;color:#444;letter-spacing:2px;text-transform:uppercase;}
+.ct-num{font-family:'Orbitron',sans-serif;font-size:13px;color:#fff;}
+.ct-num.adm{color:#ff6600;}
+.logout-btn{width:100%;background:transparent;border:1px solid #333;color:#555;padding:10px;border-radius:8px;font-family:'Orbitron',sans-serif;font-size:11px;font-weight:700;cursor:pointer;letter-spacing:1px;margin-top:14px;transition:all .2s;}
+.logout-btn:hover{border-color:#ff4444;color:#ff4444;}
+.clear-btn{width:100%;background:transparent;border:1px solid #ff444422;color:#ff4444;padding:8px;border-radius:8px;font-family:'Orbitron',sans-serif;font-size:10px;font-weight:700;cursor:pointer;letter-spacing:1px;margin-top:8px;transition:all .2s;}
+.clear-btn:hover{border-color:#ff4444;background:#ff444411;}
+.tg-status{font-size:11px;margin-top:8px;text-align:center;color:#555;transition:color .3s;}
+.tg-status.ok{color:#00ff50;}
+.tg-status.err{color:#ff4444;}
+.adm-input option{background:#1a1a1a;color:#fff;}
+select.adm-input{appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%23666' d='M6 8L1 3h10z'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 14px center;}
+.auth-overlay{position:fixed;inset:0;z-index:250;background:rgba(0,0,0,0.92);display:flex;align-items:center;justify-content:center;opacity:0;pointer-events:none;transition:opacity .3s;padding:20px;}
+.auth-overlay.open{opacity:1;pointer-events:all;}
+.auth-panel{background:#0a0a0a;border:1px solid #00ff5033;border-radius:16px;padding:28px;width:100%;max-width:400px;}
+.auth-tabs{display:flex;gap:0;margin-bottom:24px;border-radius:8px;overflow:hidden;border:1px solid #222;}
+.auth-tab{flex:1;background:transparent;border:none;color:#555;padding:10px;font-family:'Orbitron',sans-serif;font-size:11px;font-weight:700;cursor:pointer;letter-spacing:1px;transition:all .2s;}
+.auth-tab.active{background:#00ff50;color:#000;}
+.auth-title{font-family:'Orbitron',sans-serif;font-size:16px;font-weight:900;color:#00ff50;margin-bottom:6px;}
+.auth-sub{font-size:12px;color:#555;margin-bottom:20px;letter-spacing:1px;}
+.auth-btn{width:100%;background:#00ff50;color:#000;border:none;padding:12px;border-radius:8px;font-family:'Orbitron',sans-serif;font-size:12px;font-weight:900;cursor:pointer;letter-spacing:1px;transition:box-shadow .2s;margin-top:4px;}
+.auth-btn:hover{box-shadow:0 0 20px #00ff5066;}
+.auth-err{color:#ff4444;font-size:12px;margin-top:8px;display:none;text-align:center;}
+.auth-switch{text-align:center;margin-top:14px;font-size:12px;color:#555;}
+.auth-switch a{color:#00ff50;cursor:pointer;text-decoration:none;}
+.nav-user{display:flex;align-items:center;gap:8px;}
+.nav-username{font-family:'Orbitron',sans-serif;font-size:11px;color:#00ff50;font-weight:700;}
+.nav-logout{background:transparent;border:1px solid #333;color:#555;padding:7px 12px;border-radius:6px;font-family:'Orbitron',sans-serif;font-size:10px;cursor:pointer;transition:all .2s;letter-spacing:1px;}
+.nav-logout:hover{border-color:#ff4444;color:#ff4444;}
+</style>
+</head>
+<body>
+<canvas id="bg"></canvas>
+<div class="page">
+
+<nav>
+  <div class="logo">⚡ pRossv1ta_energ1</div>
+  <ul class="nav-links">
+    <li><a onclick="setFilter('all',null)">Всі напої</a></li>
+    <li><a onclick="setFilter('250',null)">250 мл</a></li>
+    <li><a onclick="setFilter('500',null)">500 мл</a></li>
+  </ul>
+  <div class="nav-right">
+    <div id="navUserArea"></div>
+    <button class="admin-btn" onclick="openAdmin()">⚙ АДМІН</button>
+    <button class="cart-btn" onclick="openCart()">🛒 Кошик <span class="cart-count" id="cartCount">0</span></button>
+  </div>
+</nav>
+
+<div class="hero">
+  <div class="hero-tag">⚡ Енергія · Фокус · Рух</div>
+  <h1>pRossv1ta<br>energ1</h1>
+  <p>Офіційний прайс-лист. Напої для тих, хто не зупиняється.</p>
+  <div class="phone-strip">
+    <a class="phone-pill" href="tel:+380956604480">📞 +380 95 660 44 80</a>
+    <a class="phone-pill" href="tel:+380954744102">📞 +380 95 474 41 02</a>
+  </div>
+  <div class="filter-row">
+    <button class="filter-btn active" onclick="setFilter('all',this)">Всі</button>
+    <button class="filter-btn" onclick="setFilter('250',this)">250 мл</button>
+    <button class="filter-btn" onclick="setFilter('500',this)">500 мл</button>
+    <button class="filter-btn energy-filter-btn" onclick="setFilter('nonstop',this)">Non Stop</button>
+    <button class="filter-btn energy-filter-btn" onclick="setFilter('monster',this)">Monster</button>
+    <button class="filter-btn energy-filter-btn" onclick="setFilter('pitbull',this)">Pit Bull</button>
+    <button class="filter-btn" onclick="setFilter('other',this)">Інше</button>
+    <button class="filter-btn" onclick="setFilter('snacks',this)">🥔 Снеки</button>
+  </div>
+</div>
+
+<!-- Safe mode notice (shown only when safe mode is ON) -->
+<div class="safe-notice">
+  <div class="safe-notice-inner">
+    <big>🛡️</big>
+    <p><strong>Безпечний режим увімкнено</strong><br>
+    Енергетичні напої (Non Stop, Monster, Pit Bull) приховані.<br>
+    Вони <strong>не рекомендовані для дітей до 18 років</strong>.<br>
+    Доступні: Спрайт, Кола та снеки.</p>
+  </div>
+</div>
+
+<div id="sectionLabel250" class="section-label">— <span>ОБСЯГ</span> 250 МЛ —</div>
+<div class="grid" id="grid250"></div>
+<div id="sectionLabel500" class="section-label">— <span>ОБСЯГ</span> 500 МЛ —</div>
+<div class="grid" id="grid500"></div>
+<div id="sectionLabelChips" class="section-label">— <span>СНЕКИ</span> —</div>
+<div class="grid" id="gridChips"></div>
+
+<div class="contacts-section">
+  <div class="contacts-title">📞 Контакти для замовлень</div>
+  <div class="contacts-grid">
+    <a class="contact-card" href="tel:+380956604480">
+      <div class="c-role">Менеджер 1</div>
+      <div class="c-num">+380 95 660 44 80</div>
+      <div class="c-tap">Натисни щоб подзвонити</div>
+    </a>
+    <a class="contact-card" href="tel:+380954744102">
+      <div class="c-role">Менеджер 2</div>
+      <div class="c-num">+380 95 474 41 02</div>
+      <div class="c-tap">Натисни щоб подзвонити</div>
+    </a>
+    <a class="contact-card adm" href="tel:+380733777637">
+      <div class="c-role">👑 Адміністратор</div>
+      <div class="c-num">+380 73 377 76 37</div>
+      <div class="c-tap">Натисни щоб подзвонити</div>
+    </a>
+  </div>
+</div>
+
+<footer><span>pRossv1ta_energ1</span> — Енергія на максимум! &nbsp;|&nbsp; Одеса, Україна</footer>
+</div>
+
+<!-- ===== SAFE MODE BAR (bottom fixed) ===== -->
+<div class="safe-mode-bar" id="safeModeBar">
+  <span class="safe-mode-label" id="safeModeLabel">🛡️ Безпечний режим</span>
+  <label class="safe-toggle">
+    <input type="checkbox" id="safeModeToggle" onchange="toggleSafeMode(this.checked)">
+    <span class="safe-slider"></span>
+  </label>
+  <span class="safe-mode-text" id="safeModeStatus">ВИМКНЕНО — показати все</span>
+</div>
+
+<!-- CART MODAL -->
+<div class="modal-overlay" id="cartModal" onclick="if(event.target===this)closeCart()">
+  <div class="cart-panel">
+    <div class="cart-title">🛒 Кошик <button class="close-btn" onclick="closeCart()">✕</button></div>
+    <div id="cartItems"></div>
+    <div id="cartBottom"></div>
+  </div>
+</div>
+
+<!-- AUTH MODAL -->
+<div class="auth-overlay" id="authModal" onclick="if(event.target===this)closeAuthModal()">
+  <div class="auth-panel">
+    <div class="auth-tabs">
+      <button class="auth-tab active" id="tabLogin" onclick="switchAuthTab('login')">ВХІД</button>
+      <button class="auth-tab" id="tabReg" onclick="switchAuthTab('reg')">РЕЄСТРАЦІЯ</button>
+    </div>
+    <div id="authLoginTab">
+      <div class="auth-title">👋 Вітаємо!</div>
+      <div class="auth-sub">Увійдіть щоб замовляти</div>
+      <input class="adm-input" type="text" id="authLoginUser" placeholder="Логін..." maxlength="30" onkeydown="if(event.key==='Enter')document.getElementById('authLoginPass').focus()">
+      <input class="adm-input" type="password" id="authLoginPass" placeholder="Пароль..." maxlength="30" onkeydown="if(event.key==='Enter')doAuthLogin()">
+      <button class="auth-btn" onclick="doAuthLogin()">⚡ УВІЙТИ</button>
+      <div class="auth-err" id="authLoginErr"></div>
+      <div class="auth-switch">Немає акаунту? <a onclick="switchAuthTab('reg')">Зареєструватись</a></div>
+    </div>
+    <div id="authRegTab" style="display:none;">
+      <div class="auth-title">✨ Реєстрація</div>
+      <div class="auth-sub">Створіть акаунт для замовлень</div>
+      <input class="adm-input" type="text" id="authRegUser" placeholder="Логін (мін. 3 символи)..." maxlength="20" onkeydown="if(event.key==='Enter')document.getElementById('authRegPass').focus()">
+      <input class="adm-input" type="password" id="authRegPass" placeholder="Пароль (мін. 4 символи)..." maxlength="30" onkeydown="if(event.key==='Enter')doAuthRegister()">
+      <input class="adm-input" type="password" id="authRegPass2" placeholder="Повторіть пароль..." maxlength="30" onkeydown="if(event.key==='Enter')doAuthRegister()">
+      <button class="auth-btn" onclick="doAuthRegister()">🚀 СТВОРИТИ АКАУНТ</button>
+      <div class="auth-err" id="authRegErr"></div>
+      <div class="auth-switch">Вже є акаунт? <a onclick="switchAuthTab('login')">Увійти</a></div>
+    </div>
+  </div>
+</div>
+
+<!-- ADMIN MODAL -->
+<div class="adm-overlay" id="adminModal" onclick="if(event.target===this)closeAdmin()">
+  <div class="adm-panel">
+    <div class="adm-header">
+      <div class="adm-title" id="admTitle">⚙ ПАНЕЛЬ ВХОДУ</div>
+      <button class="close-btn" onclick="closeAdmin()">✕</button>
+    </div>
+    <div id="adminLogin">
+      <p style="color:#666;margin-bottom:18px;font-size:13px;letter-spacing:1px;text-align:center">🔐 ВХІД ДЛЯ ПЕРСОНАЛУ</p>
+      <input class="adm-input" type="text" id="adminUser" placeholder="Логін..." maxlength="30" onkeydown="if(event.key==='Enter')document.getElementById('adminPass').focus()">
+      <input class="adm-input" type="password" id="adminPass" placeholder="Пароль..." maxlength="30" onkeydown="if(event.key==='Enter')doLogin()">
+      <button class="adm-login-btn" onclick="doLogin()">УВІЙТИ</button>
+      <div class="login-err" id="loginErr"></div>
+    </div>
+    <div class="adm-dash" id="adminDash">
+      <div id="userInfoBar" style="background:#111;border:1px solid #222;border-radius:10px;padding:12px 16px;margin-bottom:18px;display:flex;justify-content:space-between;align-items:center;">
+        <div>
+          <div id="userRoleLabel" style="font-size:10px;color:#666;letter-spacing:2px;text-transform:uppercase;margin-bottom:2px;"></div>
+          <div id="userNameLabel" style="font-family:'Orbitron',sans-serif;font-size:13px;font-weight:700;color:#fff;"></div>
+        </div>
+        <div id="userRoleBadge" style="font-size:10px;font-weight:700;padding:4px 12px;border-radius:20px;letter-spacing:1px;"></div>
+      </div>
+      <div class="adm-section" id="sectionStats">
+        <h3>📊 Статистика</h3>
+        <div class="stat-row">
+          <div class="stat-card"><div class="stat-num" id="statOrders">0</div><div class="stat-label">Замовлень</div></div>
+          <div class="stat-card"><div class="stat-num" id="statRevenue">0</div><div class="stat-label">Грн виручка</div></div>
+        </div>
+        <div class="stat-row">
+          <div class="stat-card"><div class="stat-num" id="statUsers">0</div><div class="stat-label">Покупців</div></div>
+          <div class="stat-card"><div class="stat-num" id="statAdmins">0</div><div class="stat-label">Персонал</div></div>
+        </div>
+      </div>
+      <div class="adm-section">
+        <h3><span class="live-dot"></span>Замовлення</h3>
+        <button class="refresh-btn" onclick="loadOrders()">🔄 Оновити</button>
+        <div class="orders-list" id="ordersList"><div class="no-orders">Завантаження...</div></div>
+        <button class="clear-btn" id="clearOrdersBtn" onclick="clearOrders()" style="display:none;">🗑 Очистити всі замовлення</button>
+      </div>
+      <div class="adm-section">
+        <h3>📞 Контакти</h3>
+        <div class="adm-contacts">
+          <div class="ct-row"><span style="font-size:18px">📞</span><div><div class="ct-role">Менеджер 1</div><div class="ct-num">+380 95 660 44 80</div></div></div>
+          <div class="ct-row"><span style="font-size:18px">📞</span><div><div class="ct-role">Менеджер 2</div><div class="ct-num">+380 95 474 41 02</div></div></div>
+          <div class="ct-row"><span style="font-size:18px">👑</span><div><div class="ct-role">Адміністратор</div><div class="ct-num adm">+380 73 377 76 37</div></div></div>
+        </div>
+      </div>
+      <div class="adm-section" id="sectionUsers" style="display:none;">
+        <h3>👥 Управління акаунтами</h3>
+        <div id="usersList" style="display:flex;flex-direction:column;gap:8px;margin-bottom:12px;max-height:200px;overflow-y:auto;"></div>
+        <div style="background:#111;border:1px solid #222;border-radius:10px;padding:14px;">
+          <div style="font-size:10px;color:#ff6600;letter-spacing:2px;margin-bottom:10px;text-transform:uppercase;">➕ Додати акаунт</div>
+          <input class="adm-input" type="text" id="newUserLogin" placeholder="Логін..." maxlength="20" style="margin-bottom:8px;">
+          <input class="adm-input" type="password" id="newUserPass" placeholder="Пароль..." maxlength="30" style="margin-bottom:8px;">
+          <select class="adm-input" id="newUserRole" style="margin-bottom:10px;cursor:pointer;">
+            <option value="manager">👤 Менеджер (тільки замовлення)</option>
+            <option value="admin">🛡 Адмін (замовлення + статистика)</option>
+          </select>
+          <button class="adm-login-btn" onclick="addUser()" style="background:#ff6600;">СТВОРИТИ АКАУНТ</button>
+          <div id="addUserErr" style="color:#ff4444;font-size:12px;margin-top:6px;display:none;"></div>
+        </div>
+      </div>
+      <button class="logout-btn" onclick="doLogout()">🚪 ВИЙТИ</button>
+    </div>
+  </div>
+</div>
+
+<script>
+const products = [
+  {id:1,  name:'Спрайт',             vol:250, tag:'other',   emoji:'🟡', price:39.53},
+  {id:2,  name:'Кола',               vol:250, tag:'other',   emoji:'🥤', price:28.39},
+  {id:3,  name:'Non Stop Original',  vol:250, tag:'nonstop', emoji:'⚡', price:49.34},
+  {id:4,  name:'Non Stop Jungle',    vol:250, tag:'nonstop', emoji:'🌿', price:49.34},
+  {id:5,  name:'Non Stop Zero Sugar',vol:250, tag:'nonstop', emoji:'⚪', price:49.34},
+  {id:6,  name:'Non Stop Zoom',      vol:250, tag:'nonstop', emoji:'🔵', price:49.34},
+  {id:7,  name:'Non Stop Boost',     vol:250, tag:'nonstop', emoji:'🔥', price:49.34},
+  {id:8,  name:'Non Stop 20 Years',  vol:250, tag:'nonstop', emoji:'🎉', price:49.34},
+  {id:9,  name:'Pit Bull Blue',      vol:250, tag:'pitbull', emoji:'🐂', price:32.16},
+  {id:10, name:'Pit Bull Red',       vol:250, tag:'pitbull', emoji:'🔴', price:32.16},
+  {id:11, name:'Кола Зеро',          vol:500, tag:'other',   emoji:'🥤', price:45.22},
+  {id:12, name:'Non Stop Original',  vol:500, tag:'nonstop', emoji:'⚡', price:68.55},
+  {id:13, name:'Non Stop Jungle',    vol:500, tag:'nonstop', emoji:'🌿', price:68.55},
+  {id:14, name:'Non Stop Zero Sugar',vol:500, tag:'nonstop', emoji:'⚪', price:68.55},
+  {id:15, name:'Non Stop Zoom',      vol:500, tag:'nonstop', emoji:'🔵', price:68.55},
+  {id:16, name:'Non Stop Boost',     vol:500, tag:'nonstop', emoji:'🔥', price:68.55},
+  {id:17, name:'Non Stop 20 Years',  vol:500, tag:'nonstop', emoji:'🎉', price:68.55},
+  {id:18, name:'Monster Mango',      vol:500, tag:'monster', emoji:'🟠', price:85.45},
+  {id:19, name:'Monster Doctor',     vol:500, tag:'monster', emoji:'💜', price:85.45},
+  {id:20, name:'Monster',            vol:500, tag:'monster', emoji:'🟢', price:85.45},
+  {id:21, name:"Lay's Краб",               wt:'120г', tag:'snacks', emoji:'🦀', price:99.55},
+  {id:22, name:"Lay's Сир",                wt:'120г', tag:'snacks', emoji:'🧀', price:99.55},
+  {id:23, name:"Lay's Паприка",            wt:'120г', tag:'snacks', emoji:'🌶️', price:99.55},
+  {id:24, name:"Lay's Бекон",              wt:'120г', tag:'snacks', emoji:'🥓', price:99.55},
+  {id:25, name:"Lay's Сметана та цибуля",  wt:'120г', tag:'snacks', emoji:'🧅', price:99.55},
+  {id:26, name:"ХрумТім Буженина та гірчиця",  wt:'90г', tag:'snacks', emoji:'🌭', price:34.85},
+  {id:27, name:"ХрумТім Пікантна паприка",     wt:'90г', tag:'snacks', emoji:'🌶️', price:34.85},
+  {id:28, name:"ХрумТім Королівський краб",    wt:'90г', tag:'snacks', emoji:'🦀', price:34.85},
+  {id:29, name:"ХрумТім Сметана та зелень",    wt:'90г', tag:'snacks', emoji:'🌿', price:34.85},
+  {id:30, name:"ХрумТім Чотири сири",          wt:'90г', tag:'snacks', emoji:'🧀', price:34.85},
+  {id:31, name:"ХрумТім Стейк барбекю",        wt:'90г', tag:'snacks', emoji:'🥩', price:34.85},
+  {id:32, name:"ХрумТім Гриби в сметані",      wt:'90г', tag:'snacks', emoji:'🍄', price:34.85},
+  {id:33, name:"ХрумТім Томат та зелень",      wt:'90г', tag:'snacks', emoji:'🍅', price:34.85},
+];
+
+const ENERGY_TAGS = ['nonstop','monster','pitbull'];
+
+let cart = {}, currentFilter = 'all';
+const STORAGE_KEY = 'prossvita-orders';
+let adminLoggedIn = false;
+let autoRefreshInterval = null;
+
+// ===== SAFE MODE =====
+function toggleSafeMode(on) {
+  document.body.classList.toggle('safe-mode', on);
+  const bar    = document.getElementById('safeModeBar');
+  const status = document.getElementById('safeModeStatus');
+  const label  = document.getElementById('safeModeLabel');
+  if (on) {
+    bar.classList.add('safe-on');
+    status.textContent = 'УВІМКНЕНО — енергетики приховані';
+    label.textContent  = '🛡️ Безпечний режим';
+  } else {
+    bar.classList.remove('safe-on');
+    status.textContent = 'ВИМКНЕНО — показати все';
+    label.textContent  = '🛡️ Безпечний режим';
+  }
+  // If current filter is an energy tag — reset to all
+  if (on && ENERGY_TAGS.includes(currentFilter)) {
+    setFilter('all', null);
+  } else {
+    renderGrids();
+  }
+  try { localStorage.setItem('prossvita-safemode', on ? '1' : '0'); } catch(e){}
+}
+
+// Restore safe mode from localStorage
+try {
+  if (localStorage.getItem('prossvita-safemode') === '1') {
+    document.getElementById('safeModeToggle').checked = true;
+    toggleSafeMode(true);
+  }
+} catch(e){}
+
+// ===== TELEGRAM =====
+const TG_TOKEN = '8325176121:AAHVQ6vRxkqk_YGOPGpSAK3Dp9HDHiBU4v4';
+const TG_CHAT_IDS = ['6040891295', '-1003765141762'];
+const CF_WORKER_URL = 'https://calm-cake-eb02.maxkorolioww.workers.dev/';
+
+async function sendToOne(chat_id, text) {
+  try {
+    const res = await fetch(CF_WORKER_URL, {
+      method:'POST', mode:'cors',
+      headers:{'Content-Type':'application/json'},
+      body: JSON.stringify({token:TG_TOKEN, chat_id, text, parse_mode:'HTML'})
+    });
+    const data = await res.json();
+    return data.ok ? {ok:true} : {ok:false, error:data};
+  } catch(e) { return {ok:false, error:e.message}; }
+}
+async function sendTelegramMessage(text) {
+  const results = await Promise.all(TG_CHAT_IDS.map(id => sendToOne(id, text)));
+  return {ok: results.some(r => r.ok)};
+}
+function buildTelegramMessage(order) {
+  const itemLines = order.items.map(i => `  ${i.name} <b>x${i.qty}</b> — ${i.sub.toFixed(2)} грн`).join('\n');
+  return `⚡ <b>НОВЕ ЗАМОВЛЕННЯ</b> — pRossv1ta_energ1\n\n🆔 <code>${order.id}</code>\n🕐 ${order.time}\n\n👤 <b>Ім'я:</b> ${order.customer}\n📞 <b>Телефон:</b> ${order.phone}\n📍 <b>Адреса:</b> ${order.address}\n\n📦 <b>Товари:</b>\n${itemLines}\n\n💰 <b>Сума: ${order.total.toFixed(2)} грн</b>\n\n📞 Зателефонуйте клієнту якнайшвидше!`;
+}
+
+// ===== STORAGE =====
+async function saveOrder(order) {
+  try {
+    const existing = await window.storage.get(STORAGE_KEY, true).catch(() => null);
+    let orders = [];
+    if (existing && existing.value) { try { orders = JSON.parse(existing.value); } catch(e) { orders=[]; } }
+    orders.unshift(order);
+    if (orders.length > 100) orders = orders.slice(0,100);
+    await window.storage.set(STORAGE_KEY, JSON.stringify(orders), true);
+    return true;
+  } catch(e) { return false; }
+}
+async function loadOrdersFromStorage() {
+  try {
+    const result = await window.storage.get(STORAGE_KEY, true).catch(() => null);
+    if (!result || !result.value) return [];
+    return JSON.parse(result.value);
+  } catch(e) { return []; }
+}
+async function clearOrdersFromStorage() {
+  try { await window.storage.delete(STORAGE_KEY, true); } catch(e) {}
+}
+
+// ===== USER AUTH =====
+const USERS_KEY = 'prossvita-users';
+async function getUsers() {
+  try {
+    const r = await window.storage.get(USERS_KEY, true).catch(() => null);
+    if (r && r.value) return JSON.parse(r.value);
+  } catch(e) {}
+  return [];
+}
+async function saveUsers(users) {
+  try { await window.storage.set(USERS_KEY, JSON.stringify(users), true); } catch(e) {}
+}
+let currentAuthUser = null;
+
+function openAuthModal(tab) {
+  document.getElementById('authModal').classList.add('open');
+  switchAuthTab(tab || 'login');
+  ['authLoginUser','authLoginPass','authRegUser','authRegPass','authRegPass2'].forEach(id => { const el=document.getElementById(id); if(el) el.value=''; });
+  ['authLoginErr','authRegErr'].forEach(id => { const el=document.getElementById(id); if(el) el.style.display='none'; });
+}
+function closeAuthModal() { document.getElementById('authModal').classList.remove('open'); }
+function switchAuthTab(tab) {
+  document.getElementById('authLoginTab').style.display = tab==='login'?'block':'none';
+  document.getElementById('authRegTab').style.display   = tab==='reg'?'block':'none';
+  document.getElementById('tabLogin').classList.toggle('active', tab==='login');
+  document.getElementById('tabReg').classList.toggle('active',   tab==='reg');
+}
+async function doAuthLogin() {
+  const login = document.getElementById('authLoginUser').value.trim().toLowerCase();
+  const pass  = document.getElementById('authLoginPass').value;
+  const errEl = document.getElementById('authLoginErr');
+  errEl.style.display = 'none';
+  if (!login || !pass) { errEl.textContent='⚠ Введіть логін та пароль'; errEl.style.display='block'; return; }
+  const users = await getUsers();
+  const user  = users.find(u => u.login===login && u.pass===pass);
+  if (!user) { errEl.textContent='❌ Невірний логін або пароль'; errEl.style.display='block'; return; }
+  currentAuthUser = user; closeAuthModal(); updateNavUser();
+}
+async function doAuthRegister() {
+  const login = document.getElementById('authRegUser').value.trim().toLowerCase();
+  const pass  = document.getElementById('authRegPass').value;
+  const pass2 = document.getElementById('authRegPass2').value;
+  const errEl = document.getElementById('authRegErr');
+  errEl.style.display = 'none';
+  if (!login || login.length < 3)  { errEl.textContent='⚠ Логін мінімум 3 символи'; errEl.style.display='block'; return; }
+  if (!/^[a-z0-9_]+$/.test(login)) { errEl.textContent='⚠ Логін: тільки латинські літери, цифри, _'; errEl.style.display='block'; return; }
+  if (!pass  || pass.length < 4)   { errEl.textContent='⚠ Пароль мінімум 4 символи'; errEl.style.display='block'; return; }
+  if (pass !== pass2)               { errEl.textContent='⚠ Паролі не співпадають'; errEl.style.display='block'; return; }
+  const users = await getUsers();
+  if (users.find(u => u.login===login)) { errEl.textContent='❌ Цей логін вже зайнятий'; errEl.style.display='block'; return; }
+  const newUser = { login, pass, createdAt: Date.now() };
+  users.push(newUser);
+  await saveUsers(users);
+  currentAuthUser = newUser; closeAuthModal(); updateNavUser();
+}
+function logoutUser() { currentAuthUser = null; updateNavUser(); }
+function updateNavUser() {
+  const area = document.getElementById('navUserArea');
+  if (!area) return;
+  if (currentAuthUser) {
+    area.innerHTML = `<div class="nav-user"><span class="nav-username">👤 ${currentAuthUser.login}</span><button class="nav-logout" onclick="logoutUser()">ВИЙТИ</button></div>`;
+  } else {
+    area.innerHTML = `<button class="auth-btn" style="width:auto;padding:8px 16px;margin:0;font-size:11px;" onclick="openAuthModal('login')">🔑 УВІЙТИ</button>`;
+  }
+}
+
+// ===== PRODUCT GRID =====
+function isSafeMode() { return document.body.classList.contains('safe-mode'); }
+
+function setFilter(f, btn) {
+  // In safe mode, don't allow energy filters
+  if (isSafeMode() && ENERGY_TAGS.includes(f)) return;
+  currentFilter = f;
+  document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+  if (btn) btn.classList.add('active');
+  renderGrids();
+}
+
+function cardHTML(p) {
+  const label = p.wt ? p.wt : (p.vol + ' мл');
+  return `<div class="card" id="card${p.id}">
+    <div class="card-vol">${label}</div>
+    <span class="card-emoji">${p.emoji}</span>
+    <div class="card-name">${p.name}</div>
+    <div class="card-price">${p.price.toFixed(2)} <span>грн</span></div>
+    <button class="add-btn" onclick="addToCart(${p.id})">+ До кошика</button>
+    <div class="badge-added" id="badge${p.id}">✓</div>
+  </div>`;
+}
+
+function renderGrids() {
+  const f = currentFilter;
+  const safe = isSafeMode();
+
+  let items250    = products.filter(p => p.vol===250 && p.tag!=='snacks' && (!safe || !ENERGY_TAGS.includes(p.tag)));
+  let items500    = products.filter(p => p.vol===500 && p.tag!=='snacks' && (!safe || !ENERGY_TAGS.includes(p.tag)));
+  let itemsSnacks = products.filter(p => p.tag==='snacks');
+
+  if (f==='250')      { items500=[]; itemsSnacks=[]; }
+  else if (f==='500') { items250=[]; itemsSnacks=[]; }
+  else if (f==='snacks') { items250=[]; items500=[]; }
+  else if (f!=='all') {
+    items250    = items250.filter(p => p.tag===f);
+    items500    = items500.filter(p => p.tag===f);
+    itemsSnacks = [];
+  }
+
+  document.getElementById('grid250').innerHTML    = items250.map(cardHTML).join('');
+  document.getElementById('grid500').innerHTML    = items500.map(cardHTML).join('');
+  document.getElementById('gridChips').innerHTML  = itemsSnacks.map(cardHTML).join('');
+  document.getElementById('sectionLabel250').style.display   = items250.length    ? 'block' : 'none';
+  document.getElementById('sectionLabel500').style.display   = items500.length    ? 'block' : 'none';
+  document.getElementById('sectionLabelChips').style.display = itemsSnacks.length ? 'block' : 'none';
+  updateBadges();
+}
+
+function addToCart(id) {
+  if (!currentAuthUser) { openAuthModal('login'); return; }
+  // Block energy products in safe mode
+  const p = products.find(x => x.id==id);
+  if (isSafeMode() && ENERGY_TAGS.includes(p.tag)) return;
+  cart[id] = (cart[id]||0) + 1;
+  updateCartCount();
+  const b = document.getElementById('badge'+id);
+  if (b) { b.classList.add('show'); clearTimeout(b._t); b._t = setTimeout(()=>b.classList.remove('show'),1200); }
+}
+
+function updateBadges() {
+  products.forEach(p => { const b = document.getElementById('badge'+p.id); if(b) b.classList.toggle('show',!!cart[p.id]); });
+}
+function updateCartCount() {
+  document.getElementById('cartCount').textContent = Object.values(cart).reduce((s,v)=>s+v,0);
+}
+
+// ===== CART =====
+function openCart() {
+  if (!currentAuthUser) { openAuthModal('login'); return; }
+  document.getElementById('cartModal').classList.add('open');
+  renderCart();
+}
+function closeCart() { document.getElementById('cartModal').classList.remove('open'); }
+
+function renderCart() {
+  const items = Object.entries(cart).filter(([,q])=>q>0);
+  const el = document.getElementById('cartItems'), bot = document.getElementById('cartBottom');
+  if (!items.length) { el.innerHTML='<div class="empty-cart"><big>🛒</big>Кошик порожній</div>'; bot.innerHTML=''; return; }
+  let total=0;
+  el.innerHTML = items.map(([id,qty])=>{
+    const p=products.find(x=>x.id==id), sub=p.price*qty; total+=sub;
+    const lbl = p.wt ? p.wt : (p.vol + ' мл');
+    return `<div class="cart-item">
+      <span class="ci-emoji">${p.emoji}</span>
+      <div class="ci-name">${p.name}<br><span style="color:#555;font-size:11px">${lbl} · ${p.price.toFixed(2)} грн</span></div>
+      <div class="ci-qty">
+        <button class="qty-btn" onclick="chQty(${id},-1)">−</button>
+        <span style="min-width:18px;text-align:center;font-weight:700">${qty}</span>
+        <button class="qty-btn" onclick="chQty(${id},1)">+</button>
+      </div>
+      <div class="ci-price">${sub.toFixed(2)}<br><span style="font-size:10px;color:#555">грн</span></div>
+    </div>`;
+  }).join('');
+  const totalStr = total.toFixed(2);
+  bot.innerHTML = `
+    <div style="margin-top:18px;display:flex;flex-direction:column;gap:10px;">
+      <div style="font-family:'Orbitron',sans-serif;font-size:11px;color:#00ff50;letter-spacing:2px;margin-bottom:4px;">📋 ДАНІ ДЛЯ ЗАМОВЛЕННЯ</div>
+      <div style="position:relative;"><input class="name-input" type="text" id="customerName" placeholder="Ім'я та прізвище *" maxlength="60" style="margin-bottom:0;padding-left:38px;"><span style="position:absolute;left:12px;top:50%;transform:translateY(-50%);font-size:16px;">👤</span></div>
+      <div style="position:relative;"><input class="name-input" type="tel" id="customerPhone" placeholder="Номер телефону * (+380...)" maxlength="20" style="margin-bottom:0;padding-left:38px;"><span style="position:absolute;left:12px;top:50%;transform:translateY(-50%);font-size:16px;">📞</span></div>
+      <div style="position:relative;"><input class="name-input" type="text" id="customerAddress" placeholder="Адреса доставки * (вулиця, будинок, кв.)" maxlength="120" style="margin-bottom:0;padding-left:38px;"><span style="position:absolute;left:12px;top:50%;transform:translateY(-50%);font-size:16px;">📍</span></div>
+      <div id="formErrors" style="display:none;background:rgba(255,68,68,0.1);border:1px solid #ff444455;border-radius:8px;padding:10px;font-size:12px;color:#ff6666;line-height:1.6;"></div>
+    </div>
+    <div class="cart-total" style="margin-top:16px;"><span>Разом:</span><span style="color:#00ff50">${totalStr} грн</span></div>
+    <button class="checkout-btn" id="checkoutBtn" onclick="checkout(${totalStr})">⚡ ОФОРМИТИ ЗАМОВЛЕННЯ</button>
+    <div class="tg-status" id="tgStatus"></div>`;
+}
+
+function chQty(id,d) {
+  cart[id]=Math.max(0,(cart[id]||0)+d);
+  if(!cart[id]) delete cart[id];
+  updateCartCount(); renderCart(); updateBadges();
+}
+
+async function checkout(total) {
+  total = parseFloat(total);
+  const nameEl    = document.getElementById('customerName');
+  const phoneEl   = document.getElementById('customerPhone');
+  const addressEl = document.getElementById('customerAddress');
+  const errEl     = document.getElementById('formErrors');
+  const name    = nameEl    ? nameEl.value.trim()    : '';
+  const phone   = phoneEl   ? phoneEl.value.trim()   : '';
+  const address = addressEl ? addressEl.value.trim() : '';
+  const errors = [];
+  const phoneClean = phone.replace(/[\s\-\(\)]/g, '');
+  const phoneValid = /^(\+380|380|0)[0-9]{9}$/.test(phoneClean);
+  const nameValid  = name.length >= 2 && /[а-яА-ЯіІїЇєЄa-zA-Z]/.test(name);
+  [nameEl, phoneEl, addressEl].forEach(el => { if(el) el.style.borderColor = '#333'; });
+  if (!nameValid)  { errors.push("⚠ Введіть коректне ім'я (мінімум 2 символи)"); if(nameEl) nameEl.style.borderColor='#ff4444'; }
+  if (!phoneValid) { errors.push("⚠ Введіть коректний номер телефону (напр. +380951234567)"); if(phoneEl) phoneEl.style.borderColor='#ff4444'; }
+  if (!address || address.length < 5) { errors.push("⚠ Введіть адресу доставки"); if(addressEl) addressEl.style.borderColor='#ff4444'; }
+  if (errors.length) {
+    errEl.style.display='block'; errEl.innerHTML=errors.join('<br>');
+    if(!nameValid) nameEl.focus(); else if(!phoneValid) phoneEl.focus(); else addressEl.focus();
+    return;
+  }
+  errEl.style.display='none';
+  const btn = document.getElementById('checkoutBtn');
+  const tgStatus = document.getElementById('tgStatus');
+  btn.disabled=true; btn.textContent='⏳ Відправляємо...';
+  if(tgStatus) tgStatus.textContent='📤 Надсилаємо сповіщення...';
+  const itemsList = Object.entries(cart).map(([id,q])=>{
+    const p=products.find(x=>x.id==id);
+    const label = p.wt ? p.wt : (p.vol + ' мл');
+    return {name:`${p.emoji} ${p.name}`, vol:label, qty:q, price:p.price, sub:+(p.price*q).toFixed(2)};
+  });
+  const order = { id:'ORD-'+Date.now(), customer:name, phone, address, items:itemsList, total:parseFloat(total.toFixed(2)), time:new Date().toLocaleString('uk-UA',{day:'2-digit',month:'2-digit',hour:'2-digit',minute:'2-digit'}), ts:Date.now() };
+  const tgMsg = buildTelegramMessage(order);
+  const [tgResult, saved] = await Promise.all([sendTelegramMessage(tgMsg), saveOrder(order)]);
+  let successMsg = `✅ Замовлення прийнято!\n\n👤 ${name}\n📞 ${phone}\n📍 ${address}\n\n💰 Сума: ${total} грн\n\nМенеджер зв'яжеться з вами найближчим часом!\n📞 +380 95 660 44 80`;
+  if (!saved && !tgResult.ok) successMsg = `✅ Замовлення оформлено!\n\nДля підтвердження зателефонуйте:\n📞 +380 95 660 44 80\n\nСума: ${total} грн`;
+  alert(successMsg);
+  cart={}; updateCartCount(); closeCart(); renderGrids();
+}
+
+// ===== ACCOUNTS =====
+const ACCOUNTS_KEY = 'prossvita-accounts';
+const DEFAULT_ACCOUNTS = [
+  { login:'boss',      pass:'boss7637',  role:'superadmin', name:'Власник' },
+  { login:'admin',     pass:'admin1234', role:'admin',      name:'Адміністратор' },
+  { login:'menenger2', pass:'148867',    role:'admin',      name:'Адміністратор 2' },
+];
+const ROLE_LABELS = {
+  superadmin: { label:'👑 Власник',       color:'#ff6600', bg:'rgba(255,102,0,0.15)',  border:'#ff660055' },
+  admin:      { label:'🛡 Адміністратор', color:'#00aaff', bg:'rgba(0,170,255,0.1)',   border:'#00aaff55' },
+  manager:    { label:'👤 Менеджер',      color:'#00ff50', bg:'rgba(0,255,80,0.1)',    border:'#00ff5055' },
+};
+async function getAccounts() {
+  try { const r=await window.storage.get(ACCOUNTS_KEY,true).catch(()=>null); if(r&&r.value) return JSON.parse(r.value); } catch(e){}
+  return DEFAULT_ACCOUNTS;
+}
+async function saveAccounts(accounts) {
+  try { await window.storage.set(ACCOUNTS_KEY, JSON.stringify(accounts), true); } catch(e){}
+}
+let currentUser = null;
+
+function openAdmin() {
+  document.getElementById('adminModal').classList.add('open');
+  document.getElementById('adminUser').value='';
+  document.getElementById('adminPass').value='';
+  document.getElementById('loginErr').innerHTML='';
+  document.getElementById('loginErr').style.display='none';
+  document.getElementById('adminLogin').style.display='block';
+  document.getElementById('adminDash').classList.remove('show');
+  document.getElementById('admTitle').textContent='⚙ ПАНЕЛЬ ВХОДУ';
+  currentUser=null;
+}
+function closeAdmin() {
+  document.getElementById('adminModal').classList.remove('open');
+  if(autoRefreshInterval){clearInterval(autoRefreshInterval);autoRefreshInterval=null;}
+}
+async function doLogin() {
+  const login=document.getElementById('adminUser').value.trim().toLowerCase();
+  const pass=document.getElementById('adminPass').value;
+  const errEl=document.getElementById('loginErr');
+  errEl.style.display='none';
+  if(!login||!pass){errEl.textContent='❌ Введіть логін та пароль';errEl.style.display='block';return;}
+  const accounts=await getAccounts();
+  const user=accounts.find(a=>a.login.toLowerCase()===login&&a.pass===pass);
+  if(!user){errEl.textContent='❌ Невірний логін або пароль';errEl.style.display='block';document.getElementById('adminPass').value='';return;}
+  currentUser=user; showDashboard(user);
+}
+function showDashboard(user) {
+  document.getElementById('adminLogin').style.display='none';
+  document.getElementById('adminDash').classList.add('show');
+  document.getElementById('admTitle').textContent='⚙ ПАНЕЛЬ КЕРУВАННЯ';
+  const rl=ROLE_LABELS[user.role];
+  document.getElementById('userRoleLabel').textContent='Поточний користувач';
+  document.getElementById('userNameLabel').textContent=user.name+' (@'+user.login+')';
+  const badge=document.getElementById('userRoleBadge');
+  badge.textContent=rl.label;
+  badge.style.cssText=`color:${rl.color};background:${rl.bg};border:1px solid ${rl.border};font-size:10px;font-weight:700;padding:4px 12px;border-radius:20px;letter-spacing:1px;`;
+  const isSuperAdmin=user.role==='superadmin';
+  const isAdminPlus=user.role==='superadmin'||user.role==='admin';
+  document.getElementById('sectionStats').style.display=isAdminPlus?'block':'none';
+  document.getElementById('sectionUsers').style.display=isSuperAdmin?'block':'none';
+  document.getElementById('clearOrdersBtn').style.display=isAdminPlus?'block':'none';
+  loadOrders();
+  if(isAdminPlus) autoRefreshInterval=setInterval(loadOrders,15000);
+  if(isSuperAdmin) renderUsersList();
+}
+function doLogout() {
+  document.getElementById('adminLogin').style.display='block';
+  document.getElementById('adminDash').classList.remove('show');
+  currentUser=null;
+  if(autoRefreshInterval){clearInterval(autoRefreshInterval);autoRefreshInterval=null;}
+  closeAdmin();
+}
+async function renderUsersList() {
+  const accounts=await getAccounts();
+  const el=document.getElementById('usersList');
+  if(!accounts.length){el.innerHTML='<div style="color:#333;text-align:center;padding:10px;">Акаунтів немає</div>';return;}
+  el.innerHTML=accounts.map((a,i)=>{
+    const rl=ROLE_LABELS[a.role]||ROLE_LABELS.manager;
+    const isSelf=currentUser&&a.login===currentUser.login;
+    return `<div style="background:#0d0d0d;border:1px solid #222;border-radius:8px;padding:10px 14px;display:flex;justify-content:space-between;align-items:center;">
+      <div><div style="font-family:'Orbitron',sans-serif;font-size:12px;font-weight:700;color:#fff;">@${a.login} ${isSelf?'<span style="color:#555;font-size:10px">(ви)</span>':''}</div>
+      <div style="font-size:11px;color:#555;margin-top:2px;">${a.name} · <span style="color:${rl.color}">${rl.label}</span></div></div>
+      ${!isSelf?`<button onclick="deleteUser(${i})" style="background:transparent;border:1px solid #ff444433;color:#ff4444;padding:5px 10px;border-radius:6px;cursor:pointer;font-size:11px;font-family:'Orbitron',sans-serif;">✕</button>`:''}
+    </div>`;
+  }).join('');
+}
+async function addUser() {
+  const login=document.getElementById('newUserLogin').value.trim().toLowerCase();
+  const pass=document.getElementById('newUserPass').value.trim();
+  const role=document.getElementById('newUserRole').value;
+  const errEl=document.getElementById('addUserErr');
+  errEl.style.display='none';
+  if(!login||login.length<3){errEl.textContent='❌ Логін мінімум 3 символи';errEl.style.display='block';return;}
+  if(!pass||pass.length<4){errEl.textContent='❌ Пароль мінімум 4 символи';errEl.style.display='block';return;}
+  const accounts=await getAccounts();
+  if(accounts.find(a=>a.login.toLowerCase()===login)){errEl.textContent='❌ Такий логін вже існує';errEl.style.display='block';return;}
+  const names={manager:'Менеджер',admin:'Адміністратор'};
+  accounts.push({login,pass,role,name:names[role]||'Користувач'});
+  await saveAccounts(accounts);
+  document.getElementById('newUserLogin').value='';
+  document.getElementById('newUserPass').value='';
+  renderUsersList();
+}
+async function deleteUser(idx) {
+  if(!confirm('Видалити цей акаунт?')) return;
+  const accounts=await getAccounts();
+  accounts.splice(idx,1);
+  await saveAccounts(accounts);
+  renderUsersList();
+}
+async function loadOrders() {
+  const orders=await loadOrdersFromStorage();
+  const el=document.getElementById('ordersList');
+  if(!orders.length){el.innerHTML='<div class="no-orders">📭 Замовлень ще немає</div>';document.getElementById('statOrders').textContent='0';document.getElementById('statRevenue').textContent='0';return;}
+  const total=orders.reduce((s,o)=>s+(o.total||0),0);
+  document.getElementById('statOrders').textContent=orders.length;
+  document.getElementById('statRevenue').textContent=total.toFixed(0);
+  try {
+    const usersR=await window.storage.get(USERS_KEY,true).catch(()=>null);
+    const users=(usersR&&usersR.value)?JSON.parse(usersR.value):[];
+    const statU=document.getElementById('statUsers'); if(statU) statU.textContent=users.length;
+    const accs=await getAccounts();
+    const statA=document.getElementById('statAdmins'); if(statA) statA.textContent=accs.length;
+  } catch(e){}
+  el.innerHTML=orders.map(o=>{
+    const itemsStr=o.items.map(i=>`${i.name} x${i.qty}`).join(', ');
+    const isNew=(Date.now()-o.ts)<60000;
+    return `<div class="order-card${isNew?' new-order':''}">
+      <div class="order-header"><div class="order-num">#${o.id}</div><div class="order-time">${o.time}</div></div>
+      <div class="order-customer">👤 ${o.customer}</div>
+      <div style="font-size:12px;color:#00ff5099;margin-bottom:4px;">📞 ${o.phone||'—'} &nbsp;·&nbsp; 📍 ${o.address||'—'}</div>
+      <div class="order-items">${itemsStr}</div>
+      <div class="order-total">${o.total.toFixed(2)} грн</div>
+      <div class="order-status">✓ НОВЕ</div>
+    </div>`;
+  }).join('');
+}
+async function clearOrders() {
+  if(!confirm('Очистити всі замовлення? Це незворотньо!')) return;
+  await clearOrdersFromStorage(); loadOrders();
+}
+
+renderGrids();
+updateNavUser();
+
+// ===== BG CANVAS =====
+const canvas=document.getElementById('bg'), ctx=canvas.getContext('2d');
+function resize(){canvas.width=window.innerWidth;canvas.height=window.innerHeight;}
+window.addEventListener('resize',resize);resize();
+const pts=Array.from({length:90},()=>({x:Math.random()*canvas.width,y:Math.random()*canvas.height,vx:(Math.random()-.5)*.4,vy:(Math.random()-.5)*.4,r:Math.random()*1.6+.3,a:Math.random()*.6+.2}));
+const bolts=Array.from({length:7},()=>({x:Math.random()*canvas.width,y:-200,spd:1.8+Math.random()*2.5,len:100+Math.random()*180,a:Math.random()*.7+.3}));
+function drawBg(){
+  ctx.fillStyle='#000';ctx.fillRect(0,0,canvas.width,canvas.height);
+  ctx.strokeStyle='rgba(0,255,80,0.03)';ctx.lineWidth=1;
+  for(let x=0;x<canvas.width;x+=80){ctx.beginPath();ctx.moveTo(x,0);ctx.lineTo(x,canvas.height);ctx.stroke();}
+  for(let y=0;y<canvas.height;y+=80){ctx.beginPath();ctx.moveTo(0,y);ctx.lineTo(canvas.width,y);ctx.stroke();}
+  bolts.forEach(b=>{
+    b.y+=b.spd;if(b.y>canvas.height+b.len){b.y=-b.len;b.x=Math.random()*canvas.width;}
+    const g=ctx.createLinearGradient(b.x,b.y-b.len,b.x,b.y);
+    g.addColorStop(0,'rgba(0,255,80,0)');g.addColorStop(1,`rgba(0,255,80,${.22*b.a})`);
+    ctx.strokeStyle=g;ctx.lineWidth=1.5;ctx.beginPath();ctx.moveTo(b.x,b.y-b.len);ctx.lineTo(b.x,b.y);ctx.stroke();
+  });
+  pts.forEach(p=>{
+    p.x+=p.vx;p.y+=p.vy;
+    if(p.x<0)p.x=canvas.width;if(p.x>canvas.width)p.x=0;
+    if(p.y<0)p.y=canvas.height;if(p.y>canvas.height)p.y=0;
+    ctx.beginPath();ctx.arc(p.x,p.y,p.r,0,Math.PI*2);ctx.fillStyle=`rgba(0,255,80,${.3*p.a})`;ctx.fill();
+  });
+  const t=Date.now()/1000;
+  [[canvas.width*.2,180],[canvas.width*.8,280],[canvas.width*.5,canvas.height*.6]].forEach(([ox,oy],i)=>{
+    const pulse=.05+.025*Math.sin(t*.7+i*2.1);
+    const g2=ctx.createRadialGradient(ox,oy,0,ox,oy,240);
+    g2.addColorStop(0,`rgba(0,255,80,${pulse})`);g2.addColorStop(1,'rgba(0,255,80,0)');
+    ctx.fillStyle=g2;ctx.fillRect(ox-240,oy-240,480,480);
+  });
+  requestAnimationFrame(drawBg);
+}
+drawBg();
+</script>
+</body>
+</html>
